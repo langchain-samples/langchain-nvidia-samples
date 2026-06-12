@@ -1,0 +1,48 @@
+[build-system]
+requires = ["setuptools>=77", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "openshell-deepagents-langsmith-workshop"
+version = "0.1.0"
+description = "Standalone OpenShell + Deep Agents + LangSmith observability workshop scaffold"
+readme = "README.md"
+license = "MIT"
+requires-python = ">=3.12"
+dependencies = [
+  "deepagents>=0.6,<0.7",
+  "langchain>=1.0,<2.0",
+  "langchain-core>=1.0,<2.0",
+  "langchain-nvidia-ai-endpoints>=1.2,<2.0",
+  "langsmith>=0.3,<0.9",
+  "openshell==0.0.51",
+]
+
+[project.optional-dependencies]
+dev = [
+  "ruff>=0.9,<1.0",
+  "pytest>=8,<9",
+]
+
+openai = [
+  "langchain-openai>=1.0,<2.0",
+]
+
+anthropic = [
+  "langchain-anthropic>=1.0,<2.0",
+]
+
+notebook = [
+  "ipykernel>=6.29,<7",
+  "jupyterlab>=4.4,<5",
+]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B"]
