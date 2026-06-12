@@ -1,0 +1,20 @@
+# Example-specific ignores. Generic Python/secrets/.DS_Store are covered by the repo-root .gitignore.
+
+# Workshop-generated output
+runs/
+artifacts/
+screenshots/
+tmp/
+
+# Python build/test artifacts not covered at the repo root
+build/
+dist/
+.mypy_cache/
+.coverage
+htmlcov/
+
+# Notebook checkpoints
+.ipynb_checkpoints/
+
+# Keep the sample log fixture (the repo-root .gitignore ignores *.log)
+!workshop/data/sample_app.log
