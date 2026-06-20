@@ -14,7 +14,7 @@ dependencies = [
   "langchain>=1.0,<2.0",
   "langchain-core>=1.0,<2.0",
   "langchain-nvidia-ai-endpoints>=1.2,<2.0",
-  "langsmith>=0.3,<0.9",
+  "langsmith>=0.8.18,<0.9",
   "openshell==0.0.51",
 ]
 
