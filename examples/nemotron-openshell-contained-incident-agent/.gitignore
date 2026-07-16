@@ -1,0 +1,21 @@
+# Example-specific ignores. Generic Python, secret, and editor patterns are
+# covered by the repository-root .gitignore.
+
+# Workshop-generated output
+runs/
+artifacts/
+screenshots/
+tmp/
+
+# Python build and test output
+build/
+dist/
+.mypy_cache/
+.coverage
+htmlcov/
+
+# Notebook checkpoints
+.ipynb_checkpoints/
+
+# Keep the synthetic fixture; the repository-root .gitignore ignores *.log.
+!workshop/data/sample_app.log

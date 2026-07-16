@@ -1,0 +1,42 @@
+[build-system]
+requires = ["setuptools>=77", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "openshell-contained-agent-workshop"
+version = "0.1.0"
+description = "NVIDIA OpenShell workshop with the complete Deep Agent runtime inside the sandbox"
+readme = "README.md"
+license = "MIT"
+requires-python = ">=3.12"
+dependencies = [
+  "deepagents>=0.6,<0.7",
+  "langchain>=1.0,<2.0",
+  "langchain-core>=1.0,<2.0",
+  "langchain-nvidia-ai-endpoints>=1.2,<2.0",
+  "langsmith>=0.3,<0.9",
+  "openshell==0.0.51",
+]
+
+[project.optional-dependencies]
+dev = [
+  "pytest>=8,<9",
+  "ruff>=0.9,<1.0",
+]
+notebook = [
+  "ipykernel>=6.29,<7",
+  "jupyterlab>=4.4,<5",
+]
+
+[project.scripts]
+contained-agent-runner = "openshell_contained_workshop.runner:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B"]
