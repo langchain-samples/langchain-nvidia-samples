@@ -75,9 +75,10 @@ cd examples/nemotron-openshell-contained-incident-agent
 cp .env.example .env
 ```
 
-Fill in `NVIDIA_API_KEY` and `LANGSMITH_API_KEY`, then install the locked
-environment. This installs the OpenShell 0.0.51 Python client used by the
-notebook:
+Fill in `NVIDIA_API_KEY` and `LANGSMITH_API_KEY`. For hosted NVIDIA NIM, leave
+`NVIDIA_BASE_URL` empty; set it only when using a self-hosted NIM endpoint. Then
+install the locked environment. This installs the OpenShell 0.0.51 Python client
+used by the notebook:
 
 ```bash
 uv sync --extra notebook --extra dev
@@ -100,10 +101,12 @@ Docker can be healthy while OpenShell still reports `No gateway configured` or
 #### Option A: NVIDIA local installation (recommended)
 
 Follow the [NVIDIA OpenShell quickstart](https://docs.nvidia.com/openshell/latest/get-started/quickstart)
-for your operating system. NVIDIA's recommended binary installer is:
+for your operating system. Pin the installer to the same version as this
+workshop's Python client:
 
 ```bash
-curl -LsSf https://raw.githubusercontent.com/NVIDIA/OpenShell/main/install.sh | sh
+curl -LsSf https://raw.githubusercontent.com/NVIDIA/OpenShell/main/install.sh \
+  | OPENSHELL_VERSION=v0.0.51 sh
 ```
 
 After installation, confirm that the host-level installation and its gateway

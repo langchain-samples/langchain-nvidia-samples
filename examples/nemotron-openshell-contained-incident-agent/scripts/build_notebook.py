@@ -45,7 +45,7 @@ flowchart LR
         Parent --> Policy[Policy analyst]
         Parent --> Observability[Observability coach]
         Incident --> Exec[Python and shell]
-        Exec --> Artifacts[/sandbox artifacts]
+        Exec --> Artifacts["/sandbox artifacts"]
     end
     Parent --> NIM[NVIDIA NIM]
     Parent --> LS[LangSmith]

@@ -19,6 +19,11 @@ REQUIRED_HEADINGS = (
     "## Lab 4: Policy Enforcement From Inside The Agent",
     "## Lab 6: Debugging With LangSmith",
 )
+FORBIDDEN_COMMITTED_CONTENT = (
+    "/Users/",
+    "Documents/Partners",
+    "smith.langchain.com/o/",
+)
 
 
 def load_notebook(path: Path) -> dict[str, Any]:
@@ -26,6 +31,11 @@ def load_notebook(path: Path) -> dict[str, Any]:
 
 
 def validate_notebook(notebook: dict[str, Any], path: Path) -> None:
+    serialized = json.dumps(notebook)
+    for forbidden in FORBIDDEN_COMMITTED_CONTENT:
+        if forbidden in serialized:
+            raise AssertionError(f"Notebook contains machine-specific content: {forbidden}")
+
     markdown = "\n".join(
         "".join(cell.get("source", []))
         for cell in notebook.get("cells", [])
@@ -63,6 +73,10 @@ def validate_notebook(notebook: dict[str, Any], path: Path) -> None:
     for index, cell in enumerate(notebook.get("cells", [])):
         if cell.get("cell_type") != "code":
             continue
+        if cell.get("outputs"):
+            raise AssertionError(f"Notebook code cell {index} contains saved outputs")
+        if cell.get("execution_count") is not None:
+            raise AssertionError(f"Notebook code cell {index} contains an execution count")
         source = "".join(cell.get("source", []))
         ast.parse(source, filename=f"{path}:cell-{index}")
     print("notebook-structure-and-syntax-ok")

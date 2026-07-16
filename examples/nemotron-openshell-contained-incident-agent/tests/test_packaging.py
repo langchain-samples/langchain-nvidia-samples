@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import json
 import unittest
 from pathlib import Path
 
@@ -21,6 +22,9 @@ class ReplicationPackagingTests(unittest.TestCase):
         for required in (
             "uv sync --extra notebook --extra dev",
             "NVIDIA OpenShell quickstart",
+            "OPENSHELL_VERSION=v0.0.51",
+            "For hosted NVIDIA NIM, leave",
+            "NVIDIA_BASE_URL",
             "ghcr.io/nvidia/openshell/gateway@sha256:",
             "uv run openshell status",
             "Connection refused",
@@ -36,6 +40,19 @@ class ReplicationPackagingTests(unittest.TestCase):
         self.assertIn('Path("workshop/data/sample_app.log")', preflight)
         self.assertIn("OpenShell gateway help:", preflight)
         self.assertNotIn("sfw on PATH", preflight)
+
+    def test_committed_notebook_has_no_execution_or_personal_output(self) -> None:
+        notebook_path = ROOT / "workshop/notebooks/participant_walkthrough.ipynb"
+        notebook = json.loads(notebook_path.read_text(encoding="utf-8"))
+        serialized = json.dumps(notebook)
+
+        self.assertNotIn("/Users/", serialized)
+        self.assertNotIn("Documents/Partners", serialized)
+        self.assertNotIn("smith.langchain.com/o/", serialized)
+        for cell in notebook["cells"]:
+            if cell["cell_type"] == "code":
+                self.assertEqual(cell["outputs"], [])
+                self.assertIsNone(cell["execution_count"])
 
 
 if __name__ == "__main__":
