@@ -17,7 +17,7 @@ flowchart LR
         Observability[Observability coach]
         Policy[Policy analyst]
         Python[Generated Python and shell]
-        Artifacts[/sandbox artifacts]
+        Artifacts["/sandbox artifacts"]
         Runner --> Parent
         Parent --> Incident
         Parent --> Observability
