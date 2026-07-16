@@ -2,6 +2,10 @@
 .env
 .env.*
 !.env.example
+*.pem
+*.key
+*.crt
+credentials.json
 
 # Python
 __pycache__/
@@ -23,6 +27,7 @@ env/
 *.swp
 
 # Build / logs
+node_modules/
 dist/
 build/
 *.log
