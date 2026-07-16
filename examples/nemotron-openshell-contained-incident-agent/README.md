@@ -60,69 +60,108 @@ deterministic checkpoints while retaining the complete agent response in LangSmi
 ## Requirements
 
 - Python 3.12+
-- `uv` and [Socket Firewall Free (`sfw`)](https://github.com/SocketDev/sfw-free)
+- `uv`
 - Docker Desktop or another Docker-compatible local runtime
-- OpenShell 0.0.51 with a reachable gateway
+- A local OpenShell runtime with a reachable gateway (the project locks the client to 0.0.51)
 - NVIDIA API key for hosted Nemotron through NIM, or a self-hosted NIM endpoint
 - LangSmith API key for tracing
 
-## Local OpenShell Gateway Requirement
+## End-to-End Quickstart
 
-This example installs the OpenShell client, but it does not start a gateway for
-you. A complete local setup has three layers:
-
-1. This Python project and its thin host notebook.
-2. The OpenShell CLI used by the host launcher.
-3. A selected, reachable OpenShell gateway that can build and run Docker-backed sandboxes.
-
-Docker can be healthy while OpenShell still reports `No gateway configured` or
-`Connection refused`. Confirm the selected gateway before opening the notebook:
-
-```bash
-uv run openshell status
-```
-
-## Quickstart
+### 1. Configure the project
 
 ```bash
 cd examples/nemotron-openshell-contained-incident-agent
 cp .env.example .env
 ```
 
-Fill in `NVIDIA_API_KEY` and `LANGSMITH_API_KEY`, then install the locked environment:
-
-Install [Socket Firewall Free (`sfw`)](https://github.com/SocketDev/sfw-free)
-using its official instructions if `command -v sfw` returns nothing. Then run:
-
-```bash
-command -v sfw
-sfw uv sync --extra notebook --extra dev
-```
-
-Configure and select an OpenShell gateway before starting the notebook. For a package-managed local gateway this is commonly:
+Fill in `NVIDIA_API_KEY` and `LANGSMITH_API_KEY`, then install the locked
+environment. This installs the OpenShell 0.0.51 Python client used by the
+notebook:
 
 ```bash
-uv run openshell gateway add https://127.0.0.1:17670 --local --name openshell
-uv run openshell gateway select openshell
+uv sync --extra notebook --extra dev
 ```
 
-If that gateway already exists, select it without adding it again. Confirm readiness with `uv run openshell status`.
+No separate Socket Firewall installation is required on the participant machine.
 
-If the package-managed gateway has not started or its mTLS bundle is missing,
-restart the service before registering it. On macOS with Homebrew this is commonly:
+### 2. Install and start an OpenShell gateway
+
+The Python client does not install or start the separate gateway service that
+builds and runs sandboxes. A complete setup has three layers:
+
+1. This Python project and its thin host notebook.
+2. The OpenShell CLI used by the host launcher.
+3. A selected, reachable OpenShell gateway that can build and run Docker-backed sandboxes.
+
+Docker can be healthy while OpenShell still reports `No gateway configured` or
+`Connection refused`. Choose one of the following gateway paths.
+
+#### Option A: NVIDIA local installation (recommended)
+
+Follow the [NVIDIA OpenShell quickstart](https://docs.nvidia.com/openshell/latest/get-started/quickstart)
+for your operating system. NVIDIA's recommended binary installer is:
+
+```bash
+curl -LsSf https://raw.githubusercontent.com/NVIDIA/OpenShell/main/install.sh | sh
+```
+
+After installation, confirm that the host-level installation and its gateway
+service are available:
 
 ```bash
 which openshell
-brew services restart openshell
-uv run openshell status
-uv run openshell gateway add https://127.0.0.1:17670 --local --name openshell
-uv run openshell gateway select openshell
+openshell status
 ```
 
-Alternatively, follow the NVIDIA OpenShell installation documentation to start
-or connect to another local gateway, then select it with `openshell gateway select`.
+For a package-managed local gateway listening on the standard loopback endpoint,
+register and select it for the project client:
 
-Run the complete preflight after the gateway is selected:
+```bash
+uv run openshell gateway add https://127.0.0.1:17670 --local --name openshell
+uv run openshell gateway select openshell
+uv run openshell status
+```
+
+If `gateway add` says the gateway already exists, skip that command and select
+it. If the service or its mTLS bundle is not ready, restart the package-managed
+service before registering it. On macOS with Homebrew this is commonly:
+
+```bash
+brew services restart openshell
+uv run openshell gateway select openshell
+uv run openshell status
+```
+
+#### Option B: loopback-only container gateway
+
+For local development, you can run the same pinned gateway used by the companion
+workshop. This disables TLS and binds the gateway only to `127.0.0.1`; do not use
+this configuration for a shared or remote gateway.
+
+```bash
+docker run -d \
+  --name openshell-gateway \
+  --restart unless-stopped \
+  -p 127.0.0.1:8080:8080 \
+  -v openshell-state:/var/openshell \
+  -v /var/run/docker.sock:/var/run/docker.sock \
+  -e OPENSHELL_DRIVERS=docker \
+  -e OPENSHELL_DB_URL=sqlite:/var/openshell/openshell.db \
+  -e OPENSHELL_DISABLE_TLS=true \
+  ghcr.io/nvidia/openshell/gateway@sha256:5e251baec790a61242a2190ea6fe26366d4dfe15ba1a7a0b612b5bef5af19aaa
+
+uv run openshell gateway add http://127.0.0.1:8080 --local --name local
+uv run openshell gateway select local
+uv run openshell status
+```
+
+Whichever path you use, do not continue until `uv run openshell status` shows a
+selected gateway without a connection error.
+
+### 3. Verify the environment and run the workshop
+
+Run the complete preflight:
 
 ```bash
 uv run python scripts/check_env.py
@@ -189,7 +228,7 @@ Then restart the notebook kernel and run all cells.
 uv run pytest
 uv run ruff check .
 uv run python scripts/check_notebook.py
-sfw uv lock --check
+uv lock --check
 ```
 
 The live notebook labs require a configured gateway and credentials. Unit and notebook-structure tests do not make model calls.

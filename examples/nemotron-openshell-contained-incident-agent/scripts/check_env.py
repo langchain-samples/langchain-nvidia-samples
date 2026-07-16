@@ -65,14 +65,6 @@ def _print_gateway_help() -> None:
     print("- Start/register/select a gateway, then rerun this preflight.")
 
 
-def _print_sfw_help() -> None:
-    print()
-    print("Socket Firewall help:")
-    print("- Install sfw from: https://github.com/SocketDev/sfw-free")
-    print("- Verify it with: command -v sfw")
-    print("- Install dependencies with: sfw uv sync --extra notebook --extra dev")
-
-
 def _dotenv_names(path: Path) -> dict[str, bool]:
     names: dict[str, bool] = {}
     if not path.exists():
@@ -88,12 +80,10 @@ def _dotenv_names(path: Path) -> dict[str, bool]:
 
 def main() -> int:
     failures = 0
-    sfw_ok = _command_exists("sfw")
     gateway_ok = _gateway_reachable()
     checks = {
         "Python >= 3.12": sys.version_info >= (3, 12),
         "uv on PATH": _command_exists("uv"),
-        "sfw on PATH": sfw_ok,
         "docker on PATH": _command_exists("docker"),
         "Docker daemon running": _docker_running(),
         "openshell on PATH": _command_exists("openshell"),
@@ -144,8 +134,6 @@ def main() -> int:
 
     print()
     if failures:
-        if not sfw_ok:
-            _print_sfw_help()
         if not gateway_ok:
             _print_gateway_help()
         print()

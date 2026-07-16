@@ -19,7 +19,9 @@ class ReplicationPackagingTests(unittest.TestCase):
         readme = (ROOT / "README.md").read_text(encoding="utf-8")
 
         for required in (
-            "command -v sfw",
+            "uv sync --extra notebook --extra dev",
+            "NVIDIA OpenShell quickstart",
+            "ghcr.io/nvidia/openshell/gateway@sha256:",
             "uv run openshell status",
             "Connection refused",
             "mTLS certificates",
@@ -33,7 +35,7 @@ class ReplicationPackagingTests(unittest.TestCase):
 
         self.assertIn('Path("workshop/data/sample_app.log")', preflight)
         self.assertIn("OpenShell gateway help:", preflight)
-        self.assertIn("Socket Firewall help:", preflight)
+        self.assertNotIn("sfw on PATH", preflight)
 
 
 if __name__ == "__main__":
