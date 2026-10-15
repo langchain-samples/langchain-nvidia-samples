@@ -19,6 +19,7 @@ from __future__ import annotations
 import base64
 import os
 import shlex
+from pathlib import Path
 from typing import Any
 
 from deepagents.backends import CompositeBackend, FilesystemBackend
@@ -127,8 +128,9 @@ def create_backend(runtime: Any) -> CompositeBackend:
     1. OPENSHELL_GATEWAY env var
     2. ~/.config/openshell/active_gateway (set by: openshell gateway select <name>)
 
-    Memory and skills live on the local filesystem (FilesystemBackend) so
-    changes persist across restarts and can be committed back to git.
+    Memory and skills live in dedicated directories beside src/ so changes
+    persist across restarts without exposing application source to file tools.
+    Resolve these directories from this module, not the working directory.
     """
     client = SandboxClient.from_active_cluster()
 
@@ -142,11 +144,12 @@ def create_backend(runtime: Any) -> CompositeBackend:
         ref = client.wait_ready(ref.name)
 
     session = SandboxSession(client, ref)
+    example_dir = Path(__file__).resolve().parent.parent
 
     return CompositeBackend(
         default=OpenShellBackend(session),
         routes={
-            "/memory/": FilesystemBackend(root_dir="./src", virtual_mode=True),
-            "/skills/": FilesystemBackend(root_dir="./skills", virtual_mode=True),
+            "/memory/": FilesystemBackend(root_dir=example_dir / "memory", virtual_mode=True),
+            "/skills/": FilesystemBackend(root_dir=example_dir / "skills", virtual_mode=True),
         },
     )

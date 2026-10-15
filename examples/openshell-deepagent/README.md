@@ -8,8 +8,9 @@ read back results from a policy-governed Linux environment.
 
 Imported from [langchain-ai/openshell-deepagent](https://github.com/langchain-ai/openshell-deepagent)
 at commit [`89de324`](https://github.com/langchain-ai/openshell-deepagent/tree/89de32444ff0e2746d42d92bdae38f4002fcb3b2).
-The agent source, environment template, sandbox policy, and dependency lockfile
-are preserved; this README adapts the setup for the samples repository.
+The environment template, sandbox policy, and dependency lockfile are preserved.
+This copy separates writable memory from application source and adapts the setup
+for the samples repository.
 
 ## Architecture
 
@@ -30,9 +31,12 @@ flowchart LR
 
 - Sandbox file tools and `execute` use `BaseSandbox` and `SandboxSession.exec()`.
   Write scripts and results under `/sandbox/`.
-- `/memory/` maps to the local `src/` directory; `/memory/AGENTS.md` provides
-  persistent instructions. `/skills/` maps to a local `skills/` directory, but
-  this example does not ship skills or enable automatic skill loading.
+- `/memory/` maps to the example's dedicated `memory/` directory;
+  `/memory/AGENTS.md` provides persistent instructions. This keeps agent memory
+  writes separate from the Python source in `src/`. `/skills/` maps to the
+  example's `skills/` directory, but this example does not ship skills or enable
+  automatic skill loading. Both local paths resolve relative to the example,
+  independently of the current working directory.
 - OpenShell enforces the sandbox's configured filesystem, process, and network
   policies. Host-side model calls and local memory are outside that boundary.
 
@@ -65,8 +69,8 @@ uv sync --locked
 uv run openshell --version
 ```
 
-Run the remaining commands from this directory so `langgraph.json`, `.env`,
-and the relative memory paths resolve correctly.
+Run the remaining commands from this directory so the CLI finds `langgraph.json`
+and `.env`.
 
 ### 2. Configure the environment
 
@@ -178,8 +182,20 @@ uv run openshell gateway stop
 | CLI flags differ from this README | Use `uv run openshell` from this example's locked environment. |
 | Named sandbox not found | Create it on the selected gateway and match `OPENSHELL_SANDBOX_NAME` in `.env`. |
 | NVIDIA authentication or model access fails | Check `NVIDIA_API_KEY` and access to the configured model in the NVIDIA API Catalog. |
-| Memory files are missing | Start the development server from `examples/openshell-deepagent/`. |
+| Memory files are missing | Confirm `memory/AGENTS.md` exists beside `src/` in this example. |
 | Sandbox write fails | Use `/sandbox/` and inspect the active filesystem policy. |
+
+## Local regression tests
+
+After installing the locked environment, run:
+
+```bash
+uv run python -m unittest discover -s tests -v
+```
+
+These tests use temporary directories and a mocked OpenShell connection to check
+memory persistence, separation from source files, path confinement, and operation
+from a different working directory. They require no API keys or running gateway.
 
 ## Resources
 
