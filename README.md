@@ -12,6 +12,7 @@ Build agents and RAG pipelines across the NVIDIA ecosystem with one LangChain co
 
 | Example | What it shows | Stack |
 |---|---|---|
+| [openshell-deepagent](./examples/openshell-deepagent) | General-purpose coding agent in LangGraph Studio, powered by Nemotron 3 Super, with code execution in OpenShell and persistent local memory | Deep Agents + OpenShell + NVIDIA Nemotron + LangGraph Studio |
 | [nemotron-openshell-incident-agent](./examples/nemotron-openshell-incident-agent) | Deep Agent that analyzes incident logs by running Python in a policy-governed OpenShell sandbox, on NVIDIA Nemotron Ultra via NIM, traced in LangSmith | Deep Agents + langchain-nvidia-ai-endpoints + LangSmith |
 | [nemotron-openshell-contained-incident-agent](./examples/nemotron-openshell-contained-incident-agent) | Parent Deep Agent, subagents, tools, and incident-analysis executable all running inside one policy-governed OpenShell sandbox | Deep Agents + OpenShell + NVIDIA Nemotron + LangSmith |
 
